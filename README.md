@@ -16,3 +16,14 @@ Special Days and Holidays:
 Displays a calendar with special office events, company holidays, and public holidays.
 Salary Overview: 
 Estimates total salary based on hours worked, including overtime and leave information.
+
+**Screenshots**
+
+
+![IMG_3561](https://github.com/anshidp/punching_meta/assets/112270413/3fb47f45-97dd-4059-bd01-6e4992c54049)
+
+
+
+
+
+
