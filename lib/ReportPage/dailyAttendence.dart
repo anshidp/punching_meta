@@ -7,7 +7,6 @@ import 'package:punching_machine/model/userdata.dart';
 import 'package:punching_machine/utils/utils.dart';
 
 class DailyAttendenceReport extends ConsumerStatefulWidget {
- 
   String docName;
 
   DailyAttendenceReport({
@@ -73,7 +72,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
           .doc(i.id)
           .set({"attendance": attendanceData, "search": searching});
     }
-    print("transfer completed");
   }
 
   int workingDaysCount = 0;
@@ -103,8 +101,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
 
       int currentMonth = now.year;
 
-      // print("currentMonth $currentMonth");
-
       String punchedIn = data["attendance"]["punchIn"] ?? "N/A";
 
       String punchedOut = data["attendance"]["punchOut"] ?? "N/A";
@@ -115,12 +111,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
       //if (days.isBefore(DateTime.now())) {
       if (punchedIn != "N/A" && punchedIn != "N/A") {
         workingDaysCount++;
-        print("0");
-        print("Day ${data.id}");
-        print("count $workingDaysCount");
-        print("working day");
-        print(
-            "================================================================");
       }
 
       if (specialDays.containsKey(data.id) ||
@@ -128,12 +118,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
               punchedOut == "N/A" &&
               days.weekday == DateTime.sunday) {
         workingDaysCount++;
-        print("1");
-        print("Day ${data.id}");
-        print("count $workingDaysCount");
-        print("working day");
-        print(
-            "================================================================");
       }
 
       if (punchedIn == "N/A" &&
@@ -142,12 +126,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
           !specialDays.containsKey(data.id) &&
           days.isBefore(DateTime.now())) {
         leaves++;
-        print("2");
-        print("Day ${data.id}");
-        print("leave");
-        print("count $workingDaysCount");
-        print(
-            "================================================================");
       }
 
       day++;
@@ -174,7 +152,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
     int daysInMonth = DateTime(DateTime.now().year, month + 1, 0).day;
     double monthlysalary = 10000;
     double fullDaySalary = monthlysalary / daysInMonth;
-    print("salary $fullDaySalary");
     double halfdaySalary = fullDaySalary / 2;
     final attendenceref = FirebaseFirestore.instance
         .collection("users")
@@ -189,9 +166,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
       if (i.punchedIn != "N/A" && i.punchedOut != "N/A" ||
           parse.weekday == DateTime.sunday ||
           specialDays.containsKey(i.date)) {
-        // debugPrint("index $index");
-        // debugPrint("salary $totalsalary");
-
         DateTime punchin = parseTime(i.punchedIn);
         DateTime punchout = parseTime(i.punchedOut);
         double workingHour =
@@ -202,17 +176,13 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
             specialDays.containsKey(i.date)) {
           totalsalary = totalsalary + fullDaySalary;
           attendenceref.update({"totalSalary": totalsalary});
-          // debugPrint("first if");
         } else {
-          debugPrint("first else");
           if (totalsalary <= 0) {
             totalsalary += halfdaySalary;
             attendenceref.update({"totalSalary": totalsalary});
-            //debugPrint("else if");
           } else {
             totalsalary - halfdaySalary;
             attendenceref.update({"totalSalary": totalsalary});
-            // debugPrint("second else");
           }
         }
       } else if (i.punchedIn == "N/A" &&
@@ -230,7 +200,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
   @override
   void initState() {
     //getData(widget.docName);
-    print("init");
     super.initState();
   }
 
@@ -242,10 +211,21 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
         padding: const EdgeInsets.only(top: 70, left: 20, right: 20),
         child: Column(
           children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
+                )
+              ],
+            ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: TextFormField(
                 onChanged: (data) {
                   setState(() {
@@ -254,9 +234,11 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
                 },
                 //controller: ,
                 decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey)),
-                    hintText: "Search Date"),
+                  hintStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey)),
+                  hintText: "Search Date",
+                ),
               ),
             ),
             const SizedBox(
@@ -293,8 +275,13 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
                                 dayStatus(searches[index]));
                           },
                           child: Card(
+                            color: const Color(0xff16181D),
                             child: ListTile(
-                              title: Text(searches[index].date),
+                              title: Text(
+                                searches[index].date,
+                                style: const TextStyle(
+                                    color: Colors.white, fontFamily: "Poppins"),
+                              ),
                               trailing: Text(
                                 dayStatus(searches[index]),
                                 style: TextStyle(
@@ -316,7 +303,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
   }
 
   String dayStatus(MonthlyData data) {
-    // print(data.date);
     DateTime parsedDate = DateFormat("dd-MM-yyyy").parse(data.date);
     if (data.punchedIn == "N/A" &&
         data.punchedOut == "N/A" &&
@@ -365,18 +351,15 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
         DateTime punchOut = parseTime(monthlyData.punchedOut);
 
         totalDuration = punchOut.difference(punchIn);
-        // print("totalduration $totalDuration");
         if (totalDuration.inHours > 4) {
           monthlyData.time = "FullDay";
         } else {
           monthlyData.time = "HalfDay";
         }
-        print("time ${monthlyData.time}");
       }
     } catch (e) {
       // print(
       //     'Error parsing time string: ${monthlyData.punchedIn[2]} or ${monthlyData.punchedOut[1]}');
-      // print('Exception: $e');
     }
 
     return "${totalDuration.inHours.remainder(12)} hours ${totalDuration.inMinutes.remainder(60)} minutes";

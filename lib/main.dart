@@ -81,8 +81,9 @@ class MyApp extends StatelessWidget {
           title: 'Punching',
           theme: ThemeData(
             fontFamily: "Poppins",
-            scaffoldBackgroundColor: Colors.white,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            scaffoldBackgroundColor: const Color(0xff090B0F),
+            colorScheme:
+                ColorScheme.fromSeed(seedColor: const Color(0xff090B0F)),
             useMaterial3: true,
           ),
           home: const SplashScreen()),

@@ -28,7 +28,7 @@ class DailyAttendence extends Attendence {
         .collection("days")
         .doc(doc)
         .get();
-   
+
     if (data["attendance"].isEmpty) {
       print("currentUserId $currentUserId");
       DateTime now = DateTime.now();
@@ -144,13 +144,10 @@ class DailyAttendence extends Attendence {
   }
 
   List<DateTime> getAllDaysInMonth(int month, int year) {
-    // Create a DateTime object for the first day of the month
     DateTime firstDayOfMonth = DateTime(year, month, 1);
 
-    // Find the last day of the month
     DateTime lastDayOfMonth = DateTime(year, month + 1, 0);
 
-    // Generate a list of all days in the month
     List<DateTime> allDays = [];
     for (DateTime day = firstDayOfMonth;
         day.isBefore(lastDayOfMonth);
@@ -159,5 +156,30 @@ class DailyAttendence extends Attendence {
     }
 
     return allDays;
+  }
+
+  Future<int> getonTimepercentage(String userid) async {
+    try {
+      final punchIn = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(userid)
+          .collection("attendance")
+          .doc(DateFormat('MMMM').format(DateTime(DateTime.now().year, 1, 1)))
+          .collection("days")
+          .get();
+
+      if (punchIn.docs.isNotEmpty) {
+        final punchdata = punchIn.docs
+            .map((e) => e['attendance']['punchIn'])
+            .where((element) => element != null)
+            .toList();
+
+        return punchdata.length;
+      }
+      return 0;
+    } catch (e) {
+      print(e);
+      return 0;
+    }
   }
 }

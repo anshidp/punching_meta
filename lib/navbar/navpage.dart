@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:punching_machine/Homepage/punchInpage.dart';
 import 'package:punching_machine/ReportPage/reportPage.dart';
-
-
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -24,7 +21,6 @@ class _NavbarState extends State<Navbar> {
   }
 
   getData() {
-    
     setState(() {});
   }
 
@@ -38,6 +34,9 @@ class _NavbarState extends State<Navbar> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
+          unselectedItemColor: const Color(0xffA0A0A1),
+          selectedItemColor: const Color(0xff4FFFCA),
+          backgroundColor: const Color(0xff090B0F),
           onTap: (index) {
             navigatePage(index);
           },

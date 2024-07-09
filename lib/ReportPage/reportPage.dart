@@ -137,9 +137,9 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     });
   }
 
-  double monthlysalary = 10000;
-  double fullDaySalary = 333;
-  double halfdaySalary = 166.666667;
+  double monthlysalary = 12000;
+  double fullDaySalary = 400;
+  double halfdaySalary = 200;
   double caluculateSalary(List<MonthlyData> monthlyData) {
     double totalsalary = 0;
     for (var i in monthlyData) {
@@ -221,7 +221,6 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
   @override
   void initState() {
-    print("init");
     getdata();
     super.initState();
   }
@@ -254,19 +253,8 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                         width: 700,
                         height: 130,
                         decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                blurRadius: 2,
-                                color: Colors.grey.shade500,
-                                spreadRadius: 1,
-                                offset: const Offset(1, 0.3)),
-                            // BoxShadow(blurRadius: 3, color: Colors.black45,offset: Offset(0.3, 0.4))
-                          ],
                           borderRadius: BorderRadius.circular(13),
-                          gradient: const LinearGradient(colors: [
-                            Color.fromARGB(255, 35, 45, 101),
-                            Color.fromARGB(255, 102, 198, 163)
-                          ]),
+                          color: const Color(0xff16181D),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(

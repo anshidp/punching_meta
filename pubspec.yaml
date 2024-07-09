@@ -47,8 +47,9 @@ dependencies:
   flutter_background_service_ios: ^5.0.0
   flutter_launcher_icons: ^0.13.1
   local_auth: 
-  flutter_riverpod: ^2.4.9
+  flutter_riverpod: ^2.5.1
   flutter_svg: ^2.0.9
+  slider_button: ^2.1.0
   
 
 dev_dependencies:
@@ -92,8 +93,12 @@ flutter:
   fonts:
    - family: Poppins
      fonts:
-      - asset: assets/fonts/Poppins/Poppins-Black.ttf
+      
       - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+      - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+      - asset: assets/fonts/Poppins/Poppins-ExtraBold.ttf
+      # - asset: assets/fonts/Poppins/Poppins-Thin.ttf
+      # - asset: assets/fonts/Poppins/Poppins-ExtraLight.ttf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
