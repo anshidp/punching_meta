@@ -17,6 +17,6 @@ A Flutter-based mobile application for iOS to track work hours through a simple 
 
 
 ## Screenshots
-<img src="https://github.com/anshidp/punching_meta/assets/112270413/3fb47f45-97dd-4059-bd01-6e4992c54049" width="200">
+<img src="https://github.com/anshidp/punching_meta/assets/112270413/53000b88-56e5-43f6-b79e-5f89bbd3abc2" width="200">
 
 
