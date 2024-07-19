@@ -164,7 +164,7 @@ class DailyAttendence extends Attendence {
           .collection("users")
           .doc(userid)
           .collection("attendance")
-          .doc(DateFormat('MMMM').format(DateTime(DateTime.now().year, 1, 1)))
+          .doc(DateFormat('MMMM').format(DateTime.now()))
           .collection("days")
           .get();
 

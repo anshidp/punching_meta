@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:punching_machine/Login/login_Screen.dart';
 import 'package:punching_machine/Notification/notification.dart';
@@ -22,11 +24,74 @@ class PunchInPage extends ConsumerStatefulWidget {
 }
 
 class _PunchInPageState extends ConsumerState<PunchInPage> {
+  void _checkPermissionAndStartTracking() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // Start listening for location updates
+    Geolocator.getPositionStream(
+            // Adjust this value as needed
+            )
+        .listen((Position position) {
+      _checkGeofence(position);
+    });
+  }
+
+  void _checkGeofence(Position position) {
+    double distance = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        10.986507990766448, // Replace with your office latitude
+        76.22348390294637 // Replace with your office longitude
+        );
+
+    print("distance : $distance");
+
+    if (distance >= 7 && distance < 12) {
+      // Inside geofence, trigger alarm
+      _playAlarm();
+    }
+  }
+
+  void _playAlarm() {
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        iOS: DarwinNotificationDetails(
+      sound: 'clock.aiff',
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    ));
+    AttendenceNotificationsSettings().showNotification(
+        id: 0, title: "Punch Reminder", body: "Don't forget to punch in!");
+  }
+
   int totalattempteddays = 0;
   final progress = StateProvider<double>((ref) => 0);
   @override
   void initState() {
     super.initState();
+    _checkPermissionAndStartTracking();
+    _playAlarm();
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       ref.read(progress.notifier).state = updateElapseTime();
       ref.read(remainingtimeProvider.notifier).state = getRemainingTime();
@@ -220,7 +285,7 @@ class _PunchInPageState extends ConsumerState<PunchInPage> {
               //! Days widget
               const DaysWidget(),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
               StreamBuilder(
                   stream: FirebaseFirestore.instance

@@ -12,6 +12,8 @@ class DaysWidget extends ConsumerStatefulWidget {
 final selectedDateProvider = StateProvider((ref) => "");
 
 class _DaysWidgetState extends ConsumerState<DaysWidget> {
+  int currentIndex = 0;
+  final scrollController = ScrollController();
   final selectedDayProvider = StateProvider((ref) => "");
 
   List<Container> dateTimepackage() {
@@ -62,6 +64,9 @@ class _DaysWidgetState extends ConsumerState<DaysWidget> {
           }),
         );
         datedata.add(data);
+        if (DateTime.now().day == i) {
+          currentIndex = i - 1;
+        }
       }
       return datedata;
     } catch (e) {
@@ -71,11 +76,15 @@ class _DaysWidgetState extends ConsumerState<DaysWidget> {
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 100)).then((value) => ref
-            .read(selectedDayProvider.notifier)
-            .state =
-        DateFormat("dd").format(DateTime(
-            DateTime.now().year, DateTime.now().month, DateTime.now().day)));
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Future.delayed(const Duration(milliseconds: 100)).then((value) => ref
+              .read(selectedDayProvider.notifier)
+              .state =
+          DateFormat("dd").format(DateTime(
+              DateTime.now().year, DateTime.now().month, DateTime.now().day)));
+
+      scrollController.jumpTo(currentIndex * 60);
+    });
 
     super.initState();
   }
@@ -86,6 +95,7 @@ class _DaysWidgetState extends ConsumerState<DaysWidget> {
       width: 500,
       height: 100,
       child: ListView.builder(
+          controller: scrollController,
           itemCount: dateTimepackage().length,
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) => Padding(
