@@ -76,29 +76,38 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   List<double> totalsalary = List.filled(12, 0);
   List<int> totalworkingdays = List.filled(12, 0);
   List<int> totalLeave = List.filled(12, 0);
-  // List<double> totalsa = List.filled(12, 0);
+  List<String> casualLeaves = List.filled(12, "");
 
   getdata() async {
-    final data = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(ref.read(userProvider).id)
-        .collection("attendance")
-        .get();
-    for (var i in data.docs) {
-      // totalsalary.fillRange(0, 12, 0);
-      // totalsalary.add(double.tryParse(i["totalSalary"].toString()) ?? 0);
-      int index = months.indexWhere((element) => element == i.id);
-      totalsalary[months.indexWhere((element) => element == i.id)] =
-          double.tryParse(i["totalSalary"].toString()) ?? 0;
-      totalworkingdays[index] = (i["workingdays"] ?? 0);
+    try {
+      final data = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(ref.read(userProvider).id)
+          .collection("attendance")
+          .get();
+      for (var i in data.docs) {
+        final monthdata = i.data();
+        int index = months.indexWhere((element) => element == i.id);
 
-      totalLeave[index] = (i["totalleave"] ?? 0);
+        totalsalary[months.indexWhere((element) => element == i.id)] =
+            double.tryParse(i["totalSalary"].toString()) ?? 0;
+        totalworkingdays[index] = (i["workingdays"] ?? 0);
+
+        totalLeave[index] = (i["totalleave"] ?? 0);
+        if (monthdata.containsKey("casualLeave")) {
+          casualLeaves[index] =
+              (DateFormat("MMMM-dd").format(i['casualLeave'].toDate()));
+        }
+      }
+    } catch (e, s) {
+      print(s);
+      print(e);
     }
+
     setState(() {});
   }
 
   Stream<Map<String, List<MonthlyData>>> listenToMonthlyDataChange() {
-    print(ref.read(userProvider).id);
     workingDaysCount = 0;
     leaves = 0;
     return FirebaseFirestore.instance
@@ -138,59 +147,35 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   }
 
   double monthlysalary = 12000;
-  double fullDaySalary = 400;
-  double halfdaySalary = 200;
+
   double caluculateSalary(List<MonthlyData> monthlyData) {
+   
+    double fullDaySalary = 400;
+    double halfdaySalary = 200;
     double totalsalary = 0;
     for (var i in monthlyData) {
-      print(specialDays.containsKey(i.date));
-      print("salary $totalsalary");
       DateTime parse = DateFormat("dd-MM-yyyy").parse(i.date);
 
       if (i.punchedIn != "N/A" && i.punchedOut != "N/A" ||
-          parse.weekday == DateTime.sunday ||
+          (parse.weekday == DateTime.sunday && DateTime.now().isAfter(parse)) ||
           specialDays.containsKey(i.date)) {
-        print("work first if");
-        // print("0");
         DateTime punchin = parseTime(i.punchedIn);
-        // print("1");
+
         DateTime punchout = parseTime(i.punchedOut);
-        //print("2");
+
         double workingHour =
             punchout.difference(punchin).inHours.abs().toDouble();
 
         workingHour = workingHour >= 0 ? workingHour : 0;
 
         if (workingHour >= 8 ||
-            parse.weekday == DateTime.sunday ||
+            (parse.weekday == DateTime.sunday &&
+                DateTime.now().isAfter(parse)) ||
             specialDays.containsKey(i.date)) {
-          //print("if work");
-          totalsalary = totalsalary + fullDaySalary;
-        } else {
-          print("work first else");
-          //print("else work");
-          if (totalsalary <= 0) {
-            totalsalary += halfdaySalary;
-          } else {
-            totalsalary - halfdaySalary;
-          }
-          //print("6");
+          totalsalary += fullDaySalary;
+        } else if (workingHour > 0 && workingHour < 8) {
+          totalsalary += halfdaySalary;
         }
-      } else if (i.punchedIn == "N/A" &&
-          i.punchedOut == "N/A" &&
-          parse.weekday != DateTime.sunday &&
-          DateTime.now().isAfter(parse)) {
-        print(parse);
-        print("print work else if");
-        // print("isbefore ${DateTime.now().isBefore(parse)}");
-        // print("date $parse");
-        // print("else");
-        (totalsalary - fullDaySalary);
-        print("total $totalsalary");
-      } else {
-        print("work last else");
-        //print("last");
-        //totalsalary - halfdaySalary;
       }
     }
     return totalsalary;
@@ -251,7 +236,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                           horizontal: 20, vertical: 30),
                       child: Container(
                         width: 700,
-                        height: 130,
+                        height: 140,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(13),
                           color: const Color(0xff16181D),
@@ -283,6 +268,11 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                               ),
                               Text(
                                 "Total Leaves : ${totalLeave[index]}",
+                                style: const TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                              Text(
+                                "Casual Leave : ${casualLeaves[index]}",
                                 style: const TextStyle(
                                     fontSize: 15, color: Colors.white),
                               ),

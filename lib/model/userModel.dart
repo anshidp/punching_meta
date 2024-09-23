@@ -5,7 +5,14 @@ class Usermodel {
   DateTime? createdDate;
   bool? delete;
   String? image;
-  Usermodel({this.name, this.id, this.createdDate, this.delete, this.image});
+  String? mpin;
+  Usermodel(
+      {this.name,
+      this.id,
+      this.createdDate,
+      this.delete,
+      this.image,
+      this.mpin});
 
   Usermodel.fromJson(Map<String, dynamic> json) {
     name = json["name"];
@@ -14,6 +21,7 @@ class Usermodel {
         json["createdDate"] != null ? null : json["createdDate"].toDate();
     delete = json["delete"];
     image = json["image"];
+    mpin = json['mPin'];
   }
 
   Map<String, dynamic> toMap() {
@@ -23,6 +31,7 @@ class Usermodel {
     map["createdDate"] = createdDate;
     map["delete"] = delete;
     map["image"] = image;
+    map["mPin"] = mpin;
     return map;
   }
 }

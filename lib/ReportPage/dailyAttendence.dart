@@ -21,10 +21,8 @@ class DailyAttendenceReport extends ConsumerStatefulWidget {
 }
 
 Map specialDays = {
-  "25-12-2024": "Christmas", // Christmas
-  "01-01-2024": "New Year", // New Year
-  "14-04-2024": "Vishu", // Vishu
-  "15-09-2024": "Onam", // Onam
+  "25-12-2024": "Christmas",
+  "01-01-2024": "New Year",
 };
 
 Map<String, dynamic> monthconvert = {
@@ -75,12 +73,14 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
   }
 
   int workingDaysCount = 0;
+  int sundaysCount = 0;
   int leaves = 0;
   int day = 0;
   Future<List<MonthlyData>> getData(String selectedMonth) async {
     day = 1;
     workingDaysCount = 0;
     leaves = 0;
+    sundaysCount = 0;
     List<MonthlyData> monthlydataList = [];
 
     final attendenceref = FirebaseFirestore.instance
@@ -107,16 +107,19 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
       DateTime currentDay = DateTime(now.year, currentMonth, day);
 
       DateTime days = DateFormat("dd-MM-yyyy").parse(data.id);
+      DateTime lastDayofmonth = DateTime(now.year, now.month + 1, 1)
+          .subtract(const Duration(days: 1));
 
-      //if (days.isBefore(DateTime.now())) {
-      if (punchedIn != "N/A" && punchedIn != "N/A") {
-        workingDaysCount++;
+      if (days.weekday == DateTime.sunday) {
+        sundaysCount++;
       }
 
       if (specialDays.containsKey(data.id) ||
-          punchedIn == "N/A" &&
+          (punchedIn == "N/A" &&
               punchedOut == "N/A" &&
-              days.weekday == DateTime.sunday) {
+              days.weekday == DateTime.sunday &&
+              days.isBefore(DateTime.now())) ||
+          (punchedIn != "N/A" && punchedOut != "N/A")) {
         workingDaysCount++;
       }
 
@@ -126,6 +129,12 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
           !specialDays.containsKey(data.id) &&
           days.isBefore(DateTime.now())) {
         leaves++;
+      }
+
+      if (currentDay.isAtSameMomentAs(lastDayofmonth)) {
+        if (workingDaysCount < 20) {
+          workingDaysCount = -sundaysCount;
+        }
       }
 
       day++;
@@ -144,15 +153,24 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
   }
 
   double salary = 0;
+  double monthlysalary = 12000;
 
   double caluculateSalary(
     List<MonthlyData> monthlyData,
   ) {
-    var month = monthconvert[widget.docName];
-    int daysInMonth = DateTime(DateTime.now().year, month + 1, 0).day;
-    double monthlysalary = 10000;
-    double fullDaySalary = monthlysalary / daysInMonth;
+    DateTime now = DateTime.now();
+    DateTime startDate = DateTime(now.year, now.month, 1);
+    DateTime endDate =
+        DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1));
+    int numberofDays = endDate.difference(startDate).inDays + 1;
+
+    // var month = monthconvert[widget.docName];
+    // int daysInMonth = DateTime(DateTime.now().year, month + 1, 0).day;
+
+    double fullDaySalary = monthlysalary / numberofDays;
+
     double halfdaySalary = fullDaySalary / 2;
+
     final attendenceref = FirebaseFirestore.instance
         .collection("users")
         .doc(ref.read(userProvider).id)
@@ -160,11 +178,12 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
         .doc(widget.docName);
     double totalsalary = 0;
     leaves = 0;
-    int index = 0;
+
     for (var i in monthlyData) {
       DateTime parse = DateFormat("dd-MM-yyyy").parse(i.date);
       if (i.punchedIn != "N/A" && i.punchedOut != "N/A" ||
-          parse.weekday == DateTime.sunday ||
+          (parse.weekday == DateTime.sunday &&
+              parse.isBefore(DateTime.now())) ||
           specialDays.containsKey(i.date)) {
         DateTime punchin = parseTime(i.punchedIn);
         DateTime punchout = parseTime(i.punchedOut);
@@ -172,18 +191,22 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
             punchout.difference(punchin).inHours.abs().toDouble();
         workingHour = workingHour >= 0 ? workingHour : 0;
         if (workingHour >= 8 ||
-            parse.weekday == DateTime.sunday ||
+            (parse.weekday == DateTime.sunday &&
+                parse.isBefore(DateTime.now())) ||
             specialDays.containsKey(i.date)) {
           totalsalary = totalsalary + fullDaySalary;
+
           attendenceref.update({"totalSalary": totalsalary});
         } else {
-          if (totalsalary <= 0) {
-            totalsalary += halfdaySalary;
-            attendenceref.update({"totalSalary": totalsalary});
-          } else {
-            totalsalary - halfdaySalary;
+          if (workingHour > 0 && workingHour <= 4) {
+            totalsalary -= halfdaySalary;
+
             attendenceref.update({"totalSalary": totalsalary});
           }
+          // else {
+          //   totalsalary - halfdaySalary;
+          //   attendenceref.update({"totalSalary": totalsalary});
+          // }
         }
       } else if (i.punchedIn == "N/A" &&
           i.punchedOut == "N/A" &&
@@ -192,7 +215,6 @@ class _DailyAttendenceReportState extends ConsumerState<DailyAttendenceReport> {
         (totalsalary - fullDaySalary);
         attendenceref.update({"totalSalary": totalsalary});
       } else {}
-      index++;
     }
     return totalsalary;
   }

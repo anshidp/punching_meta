@@ -22,12 +22,12 @@ Future<void> main() async {
     requestSoundPermission: true,
   );
 
-  var initialisation = InitializationSettings(
-      android: androidInitializationSettings,
-      iOS: initializationSettingsDarwin);
-  await notificationsPlugin.initialize(
-    initialisation,
-  );
+  // var initialisation = InitializationSettings(
+  //     android: androidInitializationSettings,
+  //     iOS: initializationSettingsDarwin);
+  // await notificationsPlugin.initialize(
+  //   initialisation,
+  // );
 
   // await initialize();
 

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:punching_machine/Login/login_Screen.dart';
+import 'package:punching_machine/PinLock/pinLockScreen.dart';
 import 'package:punching_machine/model/userModel.dart';
 import 'package:punching_machine/model/userdata.dart';
-import 'package:punching_machine/navbar/navpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 String currentUserId = "";
@@ -41,22 +41,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         if (mounted) {
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const Navbar()),
+              MaterialPageRoute(builder: (context) => const PinLockScreen()),
               (route) => false);
         }
       } else {
+        if (context.mounted) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MyLogin()),
+              (route) => false);
+        }
+      }
+    } else {
+      if (context.mounted) {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const MyLogin()),
             (route) => false);
       }
-
-      // ignore: use_build_context_synchronously
-    } else {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const MyLogin()),
-          (route) => false);
     }
   }
 

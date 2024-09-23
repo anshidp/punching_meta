@@ -7,32 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 String currentUser = "";
 
-// class Login_screen extends StatelessWidget {
-//   const Login_screen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Padding(
-//         padding: const EdgeInsets.all(26.0),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             const Text("Login Page"),
-//             Myform(controller: employeeIdcontroller, text: "EmployeeId"),
-//             Myform(controller: passwordcontroller, text: "Password"),
-//             ElevatedButton(
-//                 onPressed: () async {
-//                   print("===========");
-//                 },
-//                 child: const Text("Login"))
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 class MyLogin extends StatefulWidget {
   const MyLogin({Key? key}) : super(key: key);
 
@@ -80,7 +54,7 @@ class _MyLoginState extends State<MyLogin> {
                             decoration: InputDecoration(
                                 fillColor: Colors.grey.shade100,
                                 filled: true,
-                                hintText: "Email",
+                                hintText: "Employer ID",
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 )),
@@ -163,9 +137,9 @@ class _MyLoginState extends State<MyLogin> {
                                               } else if (login.docs[0]
                                                       ["password"] !=
                                                   passwordcontroller.text) {
-                                                    setState(() {
-                                                loading = false;
-                                              });
+                                                setState(() {
+                                                  loading = false;
+                                                });
                                                 // ignore: use_build_context_synchronously
                                                 return showCupertinoSnackBar(
                                                     context: context,
@@ -181,7 +155,7 @@ class _MyLoginState extends State<MyLogin> {
                                                           const SplashScreen()),
                                                   (route) => false);
                                             }
-                                            
+
                                             setState(() {
                                               loading = false;
                                             });
